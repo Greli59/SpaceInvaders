@@ -33,7 +33,6 @@ int main(){
         i++;
         majSurface();
         SDL_Delay(10);
-        //printf("%d\n",i);
     }
     return(1);
 }
