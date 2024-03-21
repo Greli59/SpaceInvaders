@@ -3,14 +3,18 @@
 #include <SDL/SDL_ttf.h>
 #include "Graphique/libgraph.h"
 
+#define HEIGHT 720
+#define WIDTH 1280
+#define DELAY 10 //ms
+
 int main(){
-    creerSurface(500,500,"test");
-    chargerSurface("test");
+    creerSurface(WIDTH,HEIGHT,"test");
+    //chargerSurface("test");
 
     //rectanglePlein(250,250,250,250,0);
 
-    int bjr = lutinTexte("bonjour",0);
-    int numLutin = chargerLutin("../Lutins/invader_monstre2_1.bmp",1);
+    int bjr = lutinTexte("bonjour",COULEUR_BLANC);
+    int numLutin = chargerLutin("../Lutins/millepatte_champi.bmp",0);
 
     afficherLutin(numLutin,250,250);
     int i =0;
@@ -19,10 +23,10 @@ int main(){
                 afficherLutin(bjr,250,100);
         }
 
-        if (i==200){
+        if (i>200){
             rectanglePlein(0,0,500,500,1);
 
-            afficherLutin(numLutin,400,100);
+            afficherLutin(numLutin,i+150,100);
 
         }
 
@@ -32,7 +36,8 @@ int main(){
         }
         i++;
         majSurface();
-        SDL_Delay(10);
+        SDL_Delay(DELAY);
+        printf("%d\n",i);
     }
     return(1);
 }
