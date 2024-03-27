@@ -1,30 +1,33 @@
 #include <stdio.h>
 
-typedef struct{
-    int id;
-    int x;
-    int y;
-} entite;
+#define TAILLE_TYPE_ENTITE 20
 
+typedef struct{
+    int id; //Chaque entite possede un identifiant indépendant de son 'lutin'
+    int x; //coordonnée
+    int y;
+    int lutin; //stocker le numéro de lutin (peut changer au cours du jeu)
+} entite;
 
 struct cellule{
     entite ent;
     struct cellule *suivant;
 };
 
-typedef struct cellule * listeEntite;
+typedef struct cellule * listeEntites;
+
 
 
 void printEntite(entite ent);
+listeEntites addHead(entite x, listeEntites l);
+void freeListeEntites(listeEntites l);
+void deleteHead(listeEntites *l);
+void printListeEntites(listeEntites l);
 
-listeEntite addHead(entite x, listeEntite l);
+void afficherListeEntite(listeEntites l);
+void afficherEntite(entite ent);
 
+void moveEntite(entite * ent,int vx, int vy);
+void moveListeEntites(listeEntites, int vx, int vy);
 
-
-
-void freeListEntite(listeEntite l);
-
-void deleteHead(listeEntite *l);
-
-
-void printListEntite(listeEntite l);
+void changerLutinListeEntites(listeEntites L, int numLutin);

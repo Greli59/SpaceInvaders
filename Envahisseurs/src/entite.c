@@ -1,10 +1,12 @@
 #include "entite.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_ttf.h>
+#include "Graphique/libgraph.h"
 
-
-listeEntite addHead(entite x, listeEntite l){
-    listeEntite tmp;
+listeEntites addHead(entite x, listeEntites l){
+    listeEntites tmp;
     tmp = malloc(sizeof(struct cellule));
     tmp->ent = x;
     tmp->suivant = l;
@@ -18,15 +20,15 @@ void printEntite(entite ent){
 }
 
 
-void freeListEntite(listeEntite l){
+void freeListeEntites(listeEntites l){
     if (l == NULL) return;
-    freeListEntite(l->suivant);
+    freeListeEntites(l->suivant);
     free(l);
 }
 
-void deleteHead(listeEntite *l){
+void deleteHead(listeEntites *l){
     if (*l != NULL){
-        listeEntite tmp = *l;
+        listeEntites tmp = *l;
         *l = (*l) -> suivant;
         free(tmp);
     }
@@ -34,8 +36,8 @@ void deleteHead(listeEntite *l){
 }
 
 
-void printListEntite(listeEntite l){
-    listeEntite p;
+void printListeEntites(listeEntites l){
+    listeEntites p;
     p = l;
     printf("[ ");
     while(p != NULL){
@@ -44,4 +46,43 @@ void printListEntite(listeEntite l){
     }
     printf("]\n");
     return;
+}
+
+void afficherListeEntite(listeEntites l){
+    listeEntites p;
+    p = l;
+    while(p != NULL){
+        afficherLutin(p->ent.lutin, p->ent.x, p->ent.y);
+        p = p->suivant;
+    }
+    return;
+}
+
+void afficherEntite(entite ent){
+    afficherLutin(ent.lutin, ent.x, ent.y);
+}
+
+
+void moveEntite(entite * ent,int vx, int vy){
+    (*ent).x += vx;
+    (*ent).y += vy;
+}
+
+void moveListeEntites(listeEntites L, int vx, int vy){
+    listeEntites p;
+    p = L;
+    while(p != NULL){
+        moveEntite(&(p->ent),vx,vy);
+        p = p->suivant;
+    }
+}
+
+
+void changerLutinListeEntites(listeEntites L, int numLutin){
+    listeEntites p;
+    p = L;
+    while(p != NULL){
+        p->ent.lutin = numLutin;
+        p = p->suivant;
+    }
 }
