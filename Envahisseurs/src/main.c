@@ -2,12 +2,36 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_ttf.h>
 #include "Graphique/libgraph.h"
+#include "entite.h"
+
 
 #define HEIGHT 720
 #define WIDTH 1280
 #define DELAY 10 //ms
 
 int main(){
+
+    entite testEntite1 = {1,2,3};
+    entite testEntite2 = {2,3,4};
+    entite testEntite3= {7,1,2};
+    entite testEntite4 = {2,3,9};
+    printEntite(testEntite1);
+
+
+    listeEntite L = NULL;
+
+    L = addHead(testEntite1,L);
+    printListEntite(L);
+    L = addHead(testEntite2,L);
+    L = addHead(testEntite3,L);
+    printListEntite(L);
+    deleteHead(&L);
+    printListEntite(L);
+
+
+
+
+
     creerSurface(WIDTH,HEIGHT,"test");
     //chargerSurface("test");
 
@@ -37,7 +61,9 @@ int main(){
         i++;
         majSurface();
         SDL_Delay(DELAY);
-        printf("%d\n",i);
+        printf("%d ",i);
+        fflush(stdout);
     }
+    printf("\n");
     return(1);
 }

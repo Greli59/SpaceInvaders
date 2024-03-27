@@ -1,13 +1,9 @@
-#include
+#include <stdio.h>
 
-struct entite {
-
-};
-
-typedef struct {
+typedef struct{
     int id;
     int x;
-    int y:
+    int y;
 } entite;
 
 
@@ -16,4 +12,19 @@ struct cellule{
     struct cellule *suivant;
 };
 
+typedef struct cellule * listeEntite;
 
+
+void printEntite(entite ent);
+
+listeEntite addHead(entite x, listeEntite l);
+
+
+
+
+void freeListEntite(listeEntite l);
+
+void deleteHead(listeEntite *l);
+
+
+void printListEntite(listeEntite l);
