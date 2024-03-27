@@ -5,8 +5,8 @@
 #include "entite.h"
 
 
-#define HEIGHT 720
-#define WIDTH 1280
+#define HEIGHT 768
+#define WIDTH 1024
 #define DELAY 10 //ms
 
 #define NB_MONSTRES 5
@@ -121,6 +121,7 @@ int main(){
 
     int timer = 0;
     int animation = 0;
+    int dirJoueur = 1;
     while(1){
 
         /*
@@ -143,7 +144,9 @@ int main(){
             if (animation>20) animation = 0;
         }
 
-        moveEntite(&joueur,1,0);
+
+        if (joueur.x>WIDTH || joueur.x<0) dirJoueur *= -1;
+        moveEntite(&joueur,dirJoueur*10,0);
         moveListeEntites(listeMonstres1,2,0);
 
         rectanglePlein(0,0,WIDTH,HEIGHT,1);
