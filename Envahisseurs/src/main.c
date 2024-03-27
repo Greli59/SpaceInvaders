@@ -92,6 +92,10 @@ int main(){
 
     creerSurface(WIDTH,HEIGHT,"test");
 
+    int numLutinBombe = chargerLutin("../Lutins/invader_bombe.bmp", 1);
+    listeEntites listeBombes = NULL;
+
+
     int numLutinMonstre1 = chargerLutin("../Lutins/invader_monstre2_1.bmp", 1);
     int numLutinMonstre1bis = chargerLutin("../Lutins/invader_monstre2_2.bmp", 1);
 
@@ -122,6 +126,8 @@ int main(){
     int timer = 0;
     int animation = 0;
     int dirJoueur = 1;
+    int dirMonstres1 = 1;
+    int dirMonstres2 = 1;
     while(1){
 
         /*
@@ -132,6 +138,8 @@ int main(){
             p = p->suivant;
         }
         */
+
+
 
         animation++;
         if (animation<10) {
@@ -144,10 +152,47 @@ int main(){
             if (animation>20) animation = 0;
         }
 
+          // BOMBES
 
-        if (joueur.x>WIDTH || joueur.x<0) dirJoueur *= -1;
+        if (timer == 50) {
+            lacherBombe(&listeBombes, 100, 100, numLutinBombe);
+            printf("bombe lachée\n");
+        }
+
+        listeEntites pMonstre2 = listeMonstres2;
+        if (timer <300 && animation == 15) {
+            while (pMonstre2 != NULL) {
+                lacherBombe(&listeBombes, pMonstre2->ent.x, pMonstre2->ent.y, numLutinBombe);
+                pMonstre2 = pMonstre2->suivant;
+            }
+        }
+
+        deplacerBombes(&listeBombes, 2, HEIGHT);
+
+        //-------
+
+
+        if (joueur.x>WIDTH || joueur.x<0) {
+            dirJoueur *= -1;
+        }
+
+
         moveEntite(&joueur,dirJoueur*10,0);
-        moveListeEntites(listeMonstres1,2,0);
+
+
+        if (toucheBord(listeMonstres1,HEIGHT,WIDTH)) {
+            dirMonstres1 *= -1;
+            moveListeEntites(listeMonstres1, 0, 15);
+        }
+
+         if (toucheBord(listeMonstres2,HEIGHT,WIDTH)) {
+            dirMonstres2 *= -1;
+            moveListeEntites(listeMonstres2, 0, 15);
+        }
+
+
+        moveListeEntites(listeMonstres1, 5 * dirMonstres1, 0);
+        moveListeEntites(listeMonstres2, 5 * dirMonstres2, 0);
 
         rectanglePlein(0,0,WIDTH,HEIGHT,1);
 
@@ -155,6 +200,7 @@ int main(){
         afficherListeEntite(listeMonstres2);
         afficherListeEntite(listeBoucliers);
         afficherEntite(joueur);
+        afficherListeEntite(listeBombes);
 
         majSurface();
 
@@ -163,8 +209,9 @@ int main(){
         printf("%d ",timer);
         fflush(stdout);
 
-        if (timer>350){
+        if (timer>600){
             fermerSurface();
+            printf("\n");
             return(1);
         }
     }

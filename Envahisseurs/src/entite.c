@@ -49,6 +49,7 @@ void printListeEntites(listeEntites l){
 }
 
 void afficherListeEntite(listeEntites l){
+    if (l == NULL) printf("liste nulle");
     listeEntites p;
     p = l;
     while(p != NULL){
@@ -84,5 +85,38 @@ void changerLutinListeEntites(listeEntites L, int numLutin){
     while(p != NULL){
         p->ent.lutin = numLutin;
         p = p->suivant;
+    }
+}
+
+int toucheBord(listeEntites L, int HEIGHT, int WIDTH) {
+    listeEntites p;
+    p = L;
+    while (p != NULL) {
+        if (p->ent.x <= 0 || p->ent.x >= WIDTH) {
+            return 1; // Si au moins un monstre touche le bord, retourne 1
+        }
+        p = p->suivant;
+    }
+    return 0; // Aucun monstre ne touche le bord
+}
+
+void lacherBombe(listeEntites *listeBombes, int x, int y, int lutin) {
+    entite bombe = {0, x, y, lutin};
+    *listeBombes = addHead(bombe, *listeBombes);
+}
+
+// A MODIFIER POUR NE PAS SUPPRIMER TOUTE LES BOMBES
+void deplacerBombes(listeEntites *listeBombes, int vitesse, int HEIGHT) {
+    listeEntites p = *listeBombes;
+    while (p != NULL) {
+        moveEntite(&(p->ent), 0, vitesse);
+        if (p->ent.y > HEIGHT) {
+            listeEntites tmp = p;
+            p = p->suivant;
+            deleteHead(&tmp);
+            *listeBombes = p;
+        } else {
+            p = p->suivant;
+        }
     }
 }
