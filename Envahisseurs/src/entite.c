@@ -49,7 +49,7 @@ void printListeEntites(listeEntites l){
 }
 
 void afficherListeEntite(listeEntites l){
-    if (l == NULL) printf("liste nulle");
+    //if (l == NULL) printf("liste nulle ");
     listeEntites p;
     p = l;
     while(p != NULL){
@@ -103,18 +103,23 @@ int toucheBord(listeEntites L, int HEIGHT, int WIDTH) {
 void lacherBombe(listeEntites *listeBombes, int x, int y, int lutin) {
     entite bombe = {0, x, y, lutin};
     *listeBombes = addHead(bombe, *listeBombes);
+    //printListeEntites(*listeBombes);
 }
 
 // A MODIFIER POUR NE PAS SUPPRIMER TOUTE LES BOMBES
 void deplacerBombes(listeEntites *listeBombes, int vitesse, int HEIGHT) {
+    int i = 1;
     listeEntites p = *listeBombes;
     while (p != NULL) {
+        printListeEntites(*listeBombes);
         moveEntite(&(p->ent), 0, vitesse);
         if (p->ent.y > HEIGHT) {
             listeEntites tmp = p;
             p = p->suivant;
             deleteHead(&tmp);
             *listeBombes = p;
+            printf("%d ",i);
+            i++;
         } else {
             p = p->suivant;
         }

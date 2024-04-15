@@ -125,9 +125,17 @@ int main(){
 
     int timer = 0;
     int animation = 0;
-    int dirJoueur = 1;
+    //int dirJoueur = 1;
     int dirMonstres1 = 1;
     int dirMonstres2 = 1;
+
+
+
+    evenement evt;
+    char touche;
+    void *detail;
+
+
     while(1){
 
         /*
@@ -139,7 +147,37 @@ int main(){
         }
         */
 
+        lireEvenement(&evt,&touche,&detail);
 
+
+        if (evt == toucheBas){
+            printf("%d = ",touche);
+            printf("%c\n",touche);
+        }
+        else if (evt == toucheHaut){
+            printf("Haut\n");
+        }
+        else if (evt == quitter){
+            printf("Quitter\n ");
+        }
+
+
+        if (evt == toucheBas && touche == 'q' && joueur.x>0){
+            moveEntite(&joueur,-10,0);
+        }
+        if (evt == toucheBas && touche == 'd' && joueur.x<WIDTH-50){
+            moveEntite(&joueur,10,0);
+        }
+
+
+        if (evt == quitter){
+            fermerSurface();
+            freeListeEntites(listeBombes);
+            freeListeEntites(listeBoucliers);
+            freeListeEntites(listeMonstres1);
+            freeListeEntites(listeMonstres2);
+            return(1);
+        }
 
         animation++;
         if (animation<10) {
@@ -152,13 +190,19 @@ int main(){
             if (animation>20) animation = 0;
         }
 
+
+
+
+
           // BOMBES
 
+
+        /*
         if (timer == 50) {
             lacherBombe(&listeBombes, 100, 100, numLutinBombe);
             printf("bombe lachée\n");
         }
-
+toucheBas
         listeEntites pMonstre2 = listeMonstres2;
         if (timer <300 && animation == 15) {
             while (pMonstre2 != NULL) {
@@ -167,18 +211,20 @@ int main(){
             }
         }
 
-        deplacerBombes(&listeBombes, 2, HEIGHT);
+        deplacerBombes(&listeBombes, 2, HEIGHT-100);
+        */
+
 
         //-------
 
-
+        /*
         if (joueur.x>WIDTH || joueur.x<0) {
             dirJoueur *= -1;
         }
 
 
         moveEntite(&joueur,dirJoueur*10,0);
-
+        */
 
         if (toucheBord(listeMonstres1,HEIGHT,WIDTH)) {
             dirMonstres1 *= -1;
@@ -206,18 +252,23 @@ int main(){
 
         timer++;
         SDL_Delay(DELAY);
-        printf("%d ",timer);
+        //printf("%d ",timer);
         fflush(stdout);
-
+/*
         if (timer>600){
             fermerSurface();
             printf("\n");
+            freeListeEntites(listeBombes);
+            freeListeEntites(listeBoucliers);
+            freeListeEntites(listeMonstres1);
+            freeListeEntites(listeMonstres2);
             return(1);
         }
+        */
     }
     printf("\n");
 
 
-
+    SDL_Quit();
     return(1);
 }
