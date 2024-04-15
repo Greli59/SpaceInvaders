@@ -125,3 +125,11 @@ void deplacerBombes(listeEntites *listeBombes, int vitesse, int HEIGHT) {
         }
     }
 }
+
+
+int largeurSprite(int lutin){
+    int largeur;
+    int hauteur;
+    tailleLutin(lutin,&largeur,&hauteur);
+    return largeur;
+}

@@ -35,3 +35,7 @@ int toucheBord(listeEntites L, int HEIGHT, int WIDHT);
 
 void lacherBombe(listeEntites *listeBombes, int x, int y, int lutin);
 void deplacerBombes(listeEntites *listeBombes, int vitesse, int HEIGHT);
+
+
+
+int largeurSprite(int lutin);

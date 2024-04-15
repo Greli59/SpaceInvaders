@@ -12,6 +12,7 @@
 #define NB_MONSTRES 5
 #define NB_BOUCLIERS 4
 
+#define COOLDOWN 100
 
 
 int main(){
@@ -92,6 +93,12 @@ int main(){
 
     creerSurface(WIDTH,HEIGHT,"test");
 
+
+
+
+    int numLutinMissile = chargerLutin("../Lutins/invader_missile.bmp", 1);
+    listeEntites listeMissiles = NULL;
+
     int numLutinBombe = chargerLutin("../Lutins/invader_bombe.bmp", 1);
     listeEntites listeBombes = NULL;
 
@@ -123,17 +130,25 @@ int main(){
     entite joueur = {0,250,500,numLutinJoueur};
 
 
+    int joueurLargeur;
+    int joueurHauteur;
+
+    tailleLutin(numLutinJoueur,&joueurLargeur,&joueurHauteur);
+
+
     int timer = 0;
     int animation = 0;
-    //int dirJoueur = 1;
+    int dirJoueur = 0;
     int dirMonstres1 = 1;
     int dirMonstres2 = 1;
 
-
-
+    int cooldownTimer = 0;
     evenement evt;
     char touche;
     void *detail;
+
+
+
 
 
     while(1){
@@ -163,11 +178,36 @@ int main(){
 
 
         if (evt == toucheBas && touche == 'q' && joueur.x>0){
-            moveEntite(&joueur,-10,0);
+            //moveEntite(&joueur,-10,0);
+            dirJoueur = -1;
         }
-        if (evt == toucheBas && touche == 'd' && joueur.x<WIDTH-50){
-            moveEntite(&joueur,10,0);
+        else if (evt == toucheBas && touche == 'd' && joueur.x<WIDTH-joueurLargeur){
+            //moveEntite(&joueur,10,0);
+            dirJoueur = 1;
         }
+        else if ((evt == toucheHaut && touche == 'q')||(evt == toucheHaut && touche == 'd')){
+            dirJoueur = 0;
+        }
+        moveEntite(&joueur,dirJoueur*8,0);
+
+
+
+        //entite bombe = {0, x, y, lutin};
+        //*listeBombes = addHead(bombe, *listeBombes);
+
+        printf("cooldown = %d\n",cooldownTimer);
+        if (cooldownTimer != 0){
+                cooldownTimer--;
+        }
+
+        if (evt == toucheBas && touche == 'z' && cooldownTimer == 0){
+            cooldownTimer = COOLDOWN;
+            entite missile = {0, joueur.x+(largeurSprite(numLutinJoueur)/2)-(largeurSprite(numLutinMissile)/2), joueur.y, numLutinMissile}; // Le missile apparait aux centre du joueur, et on doit soustraire la propre largeur/2 du missile pour bien le centrer
+            listeMissiles = addHead(missile, listeMissiles);
+        }
+
+
+        moveListeEntites(listeMissiles,0,-10); //deplacement des missilles
 
 
         if (evt == quitter){
@@ -245,6 +285,7 @@ toucheBas
         afficherListeEntite(listeMonstres1);
         afficherListeEntite(listeMonstres2);
         afficherListeEntite(listeBoucliers);
+        afficherListeEntite(listeMissiles);
         afficherEntite(joueur);
         afficherListeEntite(listeBombes);
 
