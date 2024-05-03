@@ -3,7 +3,6 @@
 #define TAILLE_TYPE_ENTITE 20
 
 typedef struct{
-    int id; //Chaque entite possede un identifiant indépendant de son 'lutin'
     int x; //coordonnée
     int y;
     int lutin; //stocker le numéro de lutin (peut changer au cours du jeu)
@@ -31,11 +30,13 @@ void moveEntite(entite * ent,int vx, int vy);
 void moveListeEntites(listeEntites, int vx, int vy);
 
 void changerLutinListeEntites(listeEntites L, int numLutin);
-int toucheBord(listeEntites L, int HEIGHT, int WIDHT);
+int toucheBord(listeEntites L);
 
 void lacherBombe(listeEntites *listeBombes, int x, int y, int lutin);
-void deplacerBombes(listeEntites *listeBombes, int vitesse, int HEIGHT);
-
+void deplacerBombes(listeEntites *listeBombes, int vitesse);
+void deplacerMissiles(listeEntites *listeMissiles, int vitesse);
 
 
 int largeurSprite(int lutin);
+int hauteurSprite(int lutin);
+int compteMonstres(listeEntites listeMonstres);
