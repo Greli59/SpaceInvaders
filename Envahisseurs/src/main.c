@@ -39,20 +39,20 @@ int main(){
 
     // Création des entités
     for (int i = 0; i < NB_MONSTRES; ++i) {
-        entite monstre1 = {100 + i*50, 100, numLutinMonstre1};
-        entite monstre2 = {100 + i*50, 200, numLutinMonstre2};
+        entite monstre1 = {100 + i*50, 100, numLutinMonstre1,0};
+        entite monstre2 = {100 + i*50, 200, numLutinMonstre2,0};
         listeMonstres1 = addHead(monstre1, listeMonstres1);
         listeMonstres2 = addHead(monstre2, listeMonstres2);
     }
 
 
-    /*
+
     for (int i = 0; i < NB_BOUCLIERS; ++i) {
-        entite bouclier = {125 + i*75, 400, numLutinBouclier};
+        entite bouclier = {125 + i*75, 400, numLutinBouclier,0};
         listeBoucliers = addHead(bouclier, listeBoucliers);
     }
-    */
 
+    /*
     entite bouclier;
     bouclier.lutin= numLutinBouclier;
      for (int i = 0; i < NB_BOUCLIERS; ++i) {
@@ -60,17 +60,18 @@ int main(){
         bouclier.y = 400;
         listeBoucliers = addHead(bouclier, listeBoucliers);
     }
-
+    */
 
 
     // Création de l'entité joueur
-    entite joueur = {250, 500, numLutinJoueur};
+    entite joueur = {250, 500, numLutinJoueur,0};
 
 
 
     // Variables pour la gestion du jeu
     int timer = 0;
     int animation = 0;
+    int animation_state = 1;
     int dirJoueur = 0;
     int dirMonstres1 = 1;
     int dirMonstres2 = 1;
@@ -128,7 +129,7 @@ int main(){
             dirJoueur = 0;
         }
 
-        moveEntite(&joueur,dirJoueur*VITESSE_JOUEUR,0);
+        moveEntite(&joueur,dirJoueur,0,DELAY_JOUEUR);
 
 
 
@@ -144,11 +145,11 @@ int main(){
 
         if (evt == toucheBas && touche == 'z' && cooldownTimer == 0){
             cooldownTimer = COOLDOWN;
-            entite missile = {joueur.x+(largeurSprite(numLutinJoueur)/2)-(largeurSprite(numLutinMissile)/2), joueur.y, numLutinMissile}; // Le missile apparaît aux centres du joueur, et on doit soustraire sa propre largeur/2 du missile pour bien le centrer
+            entite missile = {joueur.x+(largeurSprite(numLutinJoueur)/2)-(largeurSprite(numLutinMissile)/2), joueur.y, numLutinMissile,0}; // Le missile apparaît aux centres du joueur, et on doit soustraire sa propre largeur/2 du missile pour bien le centrer
             listeMissiles = addHead(missile, listeMissiles);
         }
 
-        deplacerMissiles(&listeMissiles, VITESSE_MISSILES);
+        deplacerMissiles(&listeMissiles, 1);
 
 
 
@@ -169,6 +170,8 @@ int main(){
 
 
         animation++;
+
+        /*
         if (animation<10) {
             changerLutinListeEntites(listeMonstres1,numLutinMonstre1bis);
             //printf("test1");
@@ -178,11 +181,27 @@ int main(){
             //printf("test2");
             if (animation>20) animation = 0;
         }
+        */
+        if (animation % (ANIMATION_TIMER / DELAY) == 0) {
+
+            switch (animation_state){
+
+                case 1:
+                    changerLutinListeEntites(listeMonstres1,numLutinMonstre1bis);
+                    animation_state = -1;
+                    break;
+                case -1:
+                    changerLutinListeEntites(listeMonstres1,numLutinMonstre1);
+                    animation_state = 1;
+                    break;
+
+            }
+
+        }
 
 
 
-
-        if (timer % 50 == 0) {
+        if (timer % (BOMBS_COOLDOWN / DELAY) == 0) {
             listeEntites pMonstre = listeMonstres2;
             int nombre_monstres = compteMonstres(listeMonstres2);
             int monstre_choisi = rand() % nombre_monstres; // Choix aléatoire d'un monstre
@@ -202,7 +221,7 @@ int main(){
             }
         }
 
-        deplacerBombes(&listeBombes, VITESSE_BOMBES);
+        deplacerBombes(&listeBombes, 1);
 
 
 
@@ -210,11 +229,12 @@ int main(){
         // A changer pour que tout les monstres changent de directions si un seul des monstres touche le bord, et pas seulement ligne par ligne de monstres
         if (toucheBord(listeMonstres1)) {
             dirMonstres1 *= -1;
-            moveListeEntites(listeMonstres1, 0, 1);
+            moveListeEntites(listeMonstres1, 0, DECALAGE_MONSTRES, -1);
+            printf("touché\n");
         }
          if (toucheBord(listeMonstres2)) {
             dirMonstres2 *= -1;
-            moveListeEntites(listeMonstres2, 0, 1);
+            moveListeEntites(listeMonstres2, 0, DECALAGE_MONSTRES, -1);
         }
 
         /*
@@ -238,8 +258,8 @@ int main(){
             printf("collision missiles/monstres\n");
         }
 
-        moveListeEntites(listeMonstres1, VITESSE_MONSTRES * dirMonstres1, 0);
-        moveListeEntites(listeMonstres2, VITESSE_MONSTRES * dirMonstres2, 0);
+        moveListeEntites(listeMonstres1, dirMonstres1, 0, DELAY_MONSTRES);
+        moveListeEntites(listeMonstres2, dirMonstres2, 0, DELAY_MONSTRES);
 
         rectanglePlein(0,0,WIDTH,HEIGHT,1);
 
@@ -255,7 +275,7 @@ int main(){
         timer++;
         SDL_Delay(DELAY);
         //printf("%d ",timer);
-        //fflush(stdout);
+        //fflush(stdout); // Utiliser pour des printf à la suite sans \n
 
     }
     return(1);
@@ -263,9 +283,14 @@ int main(){
 
 
 /* Choses à changer:
+ * Modifier le cooldown des missiles
  * Le point d'apparition des bombes est décallés par rapport aux centres des monstres
  * Les monstres changent de directions de droite à gauche au mauvais moment
  * Changer le fonctionnement des vitesses pour ne pas avoir des mouvements sacadés
  * Fusionner la fonction pour deplacer les bombes et les missiles car elles font la même chose
  * Regrouper toute les listes d'entités dans une liste globale
+ * Changer la façon dont on detecte un bord touché car le bord est detecté plusieur fois et si nombre pair, alors on change pas de sens + on se déplace de trop de pixel car on se déplace n fois
  */
+
+// Probleme: quand on on déplace le joueur puis on tire en continu, on peut sortir de l'ecran
+// Si on reste appuyé sur le tir puis on se déplace, on ne tire plus et on ne sort pas de l'ecran

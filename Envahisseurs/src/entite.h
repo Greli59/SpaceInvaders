@@ -6,6 +6,7 @@ typedef struct{
     int x; //coordonnée
     int y;
     int lutin; //stocker le numéro de lutin (peut changer au cours du jeu)
+    int delay;
 } entite;
 
 struct cellule{
@@ -26,8 +27,8 @@ void printListeEntites(listeEntites l);
 void afficherListeEntite(listeEntites l);
 void afficherEntite(entite ent);
 
-void moveEntite(entite * ent,int vx, int vy);
-void moveListeEntites(listeEntites, int vx, int vy);
+void moveEntite(entite * ent,int vx, int vy, int seuil);
+void moveListeEntites(listeEntites L, int vx, int vy, int seuil);
 
 void changerLutinListeEntites(listeEntites L, int numLutin);
 int toucheBord(listeEntites L);

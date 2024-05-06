@@ -75,17 +75,34 @@ void afficherEntite(entite ent){
 
 
 // Déplace une entité
+/*
 void moveEntite(entite * ent,int vx, int vy){
     (*ent).x += vx;
     (*ent).y += vy;
 }
+*/
+void moveEntite(entite * ent,int vx, int vy, int seuil){ // On ne déplace l'entite que si elle à attendu suffisament
+    // si on met un seuil de -1 c'est qu'on fait un déplacement instantanné sans prendre en compte le delai
+    if (seuil == -1){
+        (*ent).x += vx;
+        (*ent).y += vy;
+        return;
+    }
+
+    (*ent).delay++;
+    if ((*ent).delay >= seuil){
+        (*ent).x += vx;
+        (*ent).y += vy;
+        (*ent).delay = 0;
+    }
+}
 
 // Déplace toutes les entités d'une liste
-void moveListeEntites(listeEntites L, int vx, int vy){
+void moveListeEntites(listeEntites L, int vx, int vy, int seuil){
     listeEntites p;
     p = L;
     while(p != NULL){
-        moveEntite(&(p->ent),vx,vy);
+        moveEntite(&(p->ent),vx,vy,seuil);
         p = p->suivant;
     }
 }
@@ -106,7 +123,7 @@ int toucheBord(listeEntites L) {
     listeEntites p;
     p = L;
     while (p != NULL) {
-        if (p->ent.x <= 0 || p->ent.x >= WIDTH) {
+        if (p->ent.x == 0 || p->ent.x == WIDTH) {
             return 1; // Si au moins un monstre touche le bord, retourne 1
         }
         p = p->suivant;
@@ -117,7 +134,7 @@ int toucheBord(listeEntites L) {
 
 // Lâche une bombe depuis une liste d'entités à une position donnée
 void lacherBombe(listeEntites *listeBombes, int x, int y, int lutin) {
-    entite bombe = {x, y, lutin};
+    entite bombe = {x, y, lutin,0};
     *listeBombes = addHead(bombe, *listeBombes);
     //printListeEntites(*listeBombes);
 }
@@ -130,7 +147,7 @@ void deplacerBombes(listeEntites *listeBombes, int vitesse) {
     listeEntites courant = *listeBombes;
     while (courant != NULL) {
         // Déplacer la bombe
-        moveEntite(&(courant->ent), 0, vitesse);
+        moveEntite(&(courant->ent), 0, vitesse, DELAY_BOMBES);
         // Vérifier si la bombe est sortie de l'écran
         if (courant->ent.y > HEIGHT - 100) {
             // La bombe est sortie de l'écran, nous devons la supprimer
@@ -165,7 +182,7 @@ void deplacerMissiles(listeEntites *listeMissiles, int vitesse) {
     listeEntites courant = *listeMissiles;
     while (courant != NULL) {
         // Déplacer le missile
-        moveEntite(&(courant->ent), 0, -(vitesse));
+        moveEntite(&(courant->ent), 0, -(vitesse), DELAY_MISSILES);
         // Vérifier si le missile est sorti de l'écran
         if (courant->ent.y < 0) {
             // Le missile est sorti de l'écran, nous devons le supprimer
