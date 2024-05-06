@@ -125,7 +125,7 @@ void lacherBombe(listeEntites *listeBombes, int x, int y, int lutin) {
 
 // Déplace les bombes selon une vitesse donnée et les supprime si elles sortent de l'écran
 void deplacerBombes(listeEntites *listeBombes, int vitesse) {
-    printf("%d\n",WIDTH);
+    //printf("%d\n",WIDTH);
     listeEntites prec = NULL;
     listeEntites courant = *listeBombes;
     while (courant != NULL) {
@@ -224,5 +224,53 @@ int compteMonstres(listeEntites listeMonstres) {
         p = p->suivant;
     }
     return count;
+}
+
+
+
+
+////////////////
+// COLLISIONS //
+////////////////
+
+
+int collisionEntiteEntite(entite ent1, entite ent2) {
+    int largeur1, hauteur1;
+    int largeur2, hauteur2;
+    tailleLutin(ent1.lutin,&largeur1,&hauteur1);
+    tailleLutin(ent2.lutin,&largeur2,&hauteur2);
+    if (
+
+        (ent1.y < ent2.y + hauteur2) &&
+        (ent1.y + hauteur1 > ent2.y) &&
+        (ent1.x < ent2.x + largeur2) &&
+        (ent1.x + largeur1 > ent2.x)
+    )
+    {
+        return 1;
+    }
+
+    else return 0;
+}
+
+
+int collisionEntiteListe(entite ent, listeEntites listeEnt){
+    listeEntites p;
+    p = listeEnt;
+    while(p != NULL){
+        if (collisionEntiteEntite(ent,p->ent)== 1) return 1;
+        p = p->suivant;
+    }
+    return 0;
+}
+
+int collisionListeListe(listeEntites listeEnt1, listeEntites listeEnt2){
+    listeEntites p;
+    p = listeEnt1;
+    while(p != NULL){
+        if (collisionEntiteListe(p->ent,listeEnt2)== 1) return 1;
+        p = p->suivant;
+    }
+    return 0;
 }
 

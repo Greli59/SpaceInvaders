@@ -40,3 +40,8 @@ void deplacerMissiles(listeEntites *listeMissiles, int vitesse);
 int largeurSprite(int lutin);
 int hauteurSprite(int lutin);
 int compteMonstres(listeEntites listeMonstres);
+
+
+int collisionEntiteEntite(entite ent1, entite ent2);
+int collisionEntiteListe(entite ent, listeEntites listeEnt);
+int collisionListeListe(listeEntites listeEnt1, listeEntites listeEnt2);
