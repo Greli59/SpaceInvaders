@@ -3,11 +3,12 @@
 #include <stdlib.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_ttf.h>
+#include <stdbool.h>
 #include "Graphique/libgraph.h"
 #include "constants.h"
 
 
-/* FONCTIONS POUR LES LISTES CHAINEES */
+                                            /* FONCTIONS POUR LES LISTES CHAINEES */
 
 // Ajoute une entité en tête de liste
 listeEntites addHead(entite x, listeEntites l){
@@ -33,10 +34,10 @@ void freeListeEntites(listeEntites l){
 }
 
 // Supprime la tête d'une liste d'entités
-void deleteHead(listeEntites *l){
-    if (*l != NULL){
-        listeEntites tmp = *l;
-        *l = (*l) -> suivant;
+void deleteHead(listeEntites *pl){
+    if (*pl != NULL){
+        listeEntites tmp = *pl;
+        *pl = (*pl) -> suivant;
         free(tmp);
     }
     else printf("La liste est vide\n");
@@ -75,12 +76,6 @@ void afficherEntite(entite ent){
 
 
 // Déplace une entité
-/*
-void moveEntite(entite * ent,int vx, int vy){
-    (*ent).x += vx;
-    (*ent).y += vy;
-}
-*/
 void moveEntite(entite * ent,int vx, int vy, int seuil){ // On ne déplace l'entite que si elle à attendu suffisament
     // si on met un seuil de -1 c'est qu'on fait un déplacement instantanné sans prendre en compte le delai
     if (seuil == -1){
@@ -119,7 +114,7 @@ void changerLutinListeEntites(listeEntites L, int numLutin){
 
 
 // Vérifie si au moins une entité d'une liste touche le bord de l'écran
-int toucheBord(listeEntites L) {
+bool toucheBord(listeEntites L) {
     listeEntites p;
     p = L;
     while (p != NULL) {
@@ -149,7 +144,7 @@ void deplacerBombes(listeEntites *listeBombes, int vitesse) {
         // Déplacer la bombe
         moveEntite(&(courant->ent), 0, vitesse, DELAY_BOMBES);
         // Vérifier si la bombe est sortie de l'écran
-        if (courant->ent.y > HEIGHT - 100) {
+        if (courant->ent.y > HEIGHT) {
             // La bombe est sortie de l'écran, nous devons la supprimer
             // Si la bombe à supprimer est en tête de liste
             if (prec == NULL) {
@@ -176,6 +171,7 @@ void deplacerBombes(listeEntites *listeBombes, int vitesse) {
 }
 
 
+//Copier Coller de la fonction d'avant, à modifier...
 // Déplace les missiles selon une vitesse donnée et les supprime s'ils sortent de l'écran
 void deplacerMissiles(listeEntites *listeMissiles, int vitesse) {
     listeEntites prec = NULL;
@@ -246,12 +242,12 @@ int compteMonstres(listeEntites listeMonstres) {
 
 
 
-////////////////
-// COLLISIONS //
-////////////////
+                                            ////////////////
+                                            // COLLISIONS //
+                                            ////////////////
 
 
-int collisionEntiteEntite(entite ent1, entite ent2) {
+bool collisionEntiteEntite(entite ent1, entite ent2) {
     int largeur1, hauteur1;
     int largeur2, hauteur2;
     tailleLutin(ent1.lutin,&largeur1,&hauteur1);
@@ -271,7 +267,7 @@ int collisionEntiteEntite(entite ent1, entite ent2) {
 }
 
 
-int collisionEntiteListe(entite ent, listeEntites listeEnt){
+bool collisionEntiteListe(entite ent, listeEntites listeEnt){
     listeEntites p;
     p = listeEnt;
     while(p != NULL){
@@ -281,7 +277,7 @@ int collisionEntiteListe(entite ent, listeEntites listeEnt){
     return 0;
 }
 
-int collisionListeListe(listeEntites listeEnt1, listeEntites listeEnt2){
+bool collisionListeListe(listeEntites listeEnt1, listeEntites listeEnt2){
     listeEntites p;
     p = listeEnt1;
     while(p != NULL){

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 
 #define TAILLE_TYPE_ENTITE 20
 
@@ -31,7 +32,7 @@ void moveEntite(entite * ent,int vx, int vy, int seuil);
 void moveListeEntites(listeEntites L, int vx, int vy, int seuil);
 
 void changerLutinListeEntites(listeEntites L, int numLutin);
-int toucheBord(listeEntites L);
+bool toucheBord(listeEntites L);
 
 void lacherBombe(listeEntites *listeBombes, int x, int y, int lutin);
 void deplacerBombes(listeEntites *listeBombes, int vitesse);
@@ -43,6 +44,6 @@ int hauteurSprite(int lutin);
 int compteMonstres(listeEntites listeMonstres);
 
 
-int collisionEntiteEntite(entite ent1, entite ent2);
-int collisionEntiteListe(entite ent, listeEntites listeEnt);
-int collisionListeListe(listeEntites listeEnt1, listeEntites listeEnt2);
+bool collisionEntiteEntite(entite ent1, entite ent2);
+bool collisionEntiteListe(entite ent, listeEntites listeEnt);
+bool collisionListeListe(listeEntites listeEnt1, listeEntites listeEnt2);
