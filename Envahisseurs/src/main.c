@@ -7,6 +7,10 @@
 #include "constants.h"
 
 
+int vie = 3; // Nombre de vies initial du joueur
+int cooldownDegats = 0;
+int playerTookDamage = 0;
+
 
 // Fonction pour générer un nombre aléatoire entre min et max
 int randInRange(int min, int max) {
@@ -14,6 +18,8 @@ int randInRange(int min, int max) {
 }
 
 int main(){
+
+
     srand(time(NULL)); // Initialisation du temps pour la gestion du hasard
     creerSurface(WIDTH,HEIGHT,"test"); // Création de la surface
 
@@ -27,6 +33,22 @@ int main(){
     int numLutinBouclier = chargerLutin("../Lutins/invader_bouclier.bmp", 1);
     int numLutinJoueur = chargerLutin("../Lutins/invader_canon.bmp", 1);
     int numLutinJoueurDegat= chargerLutin("../Lutins/invader_canon_ferraille.bmp", 1);
+
+
+    // Variables pour la gestion du jeu
+    int timer = 0;
+    int animation = 0;
+    int animation_state = 1;
+    int dirJoueur = 0;
+    int dirMonstres = 1;
+    int cooldownTimer = 0;
+    evenement evt;
+    char touche;
+    void *detail;
+    int joueurLargeur;
+    int joueurHauteur;
+
+    tailleLutin(numLutinJoueur,&joueurLargeur,&joueurHauteur);
 
 
 
@@ -46,45 +68,26 @@ int main(){
     }
 
 
-
     for (int i = 0; i < NB_BOUCLIERS; ++i) {
-        entite bouclier = {125 + i*75, 400, numLutinBouclier,0};
+        entite bouclier = {(WIDTH/4 - largeurSprite(numLutinBouclier))/2 + i*(WIDTH/4), HAUTEUR_BOUCLIER, numLutinBouclier,0};
         listeBoucliers = addHead(bouclier, listeBoucliers);
     }
-
-    /*
-    entite bouclier;
-    bouclier.lutin= numLutinBouclier;
-     for (int i = 0; i < NB_BOUCLIERS; ++i) {
-        bouclier.x = 125 + i*75;
-        bouclier.y = 400;
-        listeBoucliers = addHead(bouclier, listeBoucliers);
-    }
-    */
 
 
     // Création de l'entité joueur
-    entite joueur = {250, 500, numLutinJoueur,0};
+    entite joueur = {WIDTH/2 - joueurLargeur/2, HAUTEUR_JOUEUR, numLutinJoueur,0};
 
 
 
-    // Variables pour la gestion du jeu
-    int timer = 0;
-    int animation = 0;
-    int animation_state = 1;
-    int dirJoueur = 0;
-    int dirMonstres1 = 1;
-    int dirMonstres2 = 1;
-    int cooldownTimer = 0;
-    evenement evt;
-    char touche;
-    void *detail;
-    int joueurLargeur;
-    int joueurHauteur;
-
-    tailleLutin(numLutinJoueur,&joueurLargeur,&joueurHauteur);
 
 
+
+    char vieString[2];
+    vieString[0] = vie + '0';
+    vieString[1] = '\0';
+    int vieAffichage = lutinTexte(vieString,COULEUR_BLANC);
+
+    int etatBord = 0; // 0 = aucun bord touché, 1 = bord gauche touché, -1 = bord droit touché
 
     while(1){
 
@@ -110,7 +113,6 @@ int main(){
 
 
         // Déplacement du joueur
-
         if (evt == toucheBas && touche == 'q' && joueur.x>0){
             //moveEntite(&joueur,-10,0);
             dirJoueur = -1;
@@ -132,8 +134,6 @@ int main(){
         moveEntite(&joueur,dirJoueur,0,DELAY_JOUEUR);
 
 
-
-
         // Missiles lancés par le joueur
 
         // Pour gérer le temps entre chaque lancé possible de missile par le joueur, je vérifie si mon cooldown est égal à zéro et donc je peux tirer
@@ -144,13 +144,12 @@ int main(){
         }
 
         if (evt == toucheBas && touche == 'z' && cooldownTimer == 0){
-            cooldownTimer = COOLDOWN;
+            cooldownTimer = MISSILES_COOLDOWN;
             entite missile = {joueur.x+(largeurSprite(numLutinJoueur)/2)-(largeurSprite(numLutinMissile)/2), joueur.y, numLutinMissile,0}; // Le missile apparaît aux centres du joueur, et on doit soustraire sa propre largeur/2 du missile pour bien le centrer
             listeMissiles = addHead(missile, listeMissiles);
         }
 
-        deplacerMissiles(&listeMissiles, 1);
-
+        deplacerVertical(&listeMissiles, -1, DELAY_MISSILES);
 
 
         // Quitter le jeu
@@ -171,17 +170,6 @@ int main(){
 
         animation++;
 
-        /*
-        if (animation<10) {
-            changerLutinListeEntites(listeMonstres1,numLutinMonstre1bis);
-            //printf("test1");
-        }
-        else {
-            changerLutinListeEntites(listeMonstres1,numLutinMonstre1);
-            //printf("test2");
-            if (animation>20) animation = 0;
-        }
-        */
         if (animation % (ANIMATION_TIMER / DELAY) == 0) {
 
             switch (animation_state){
@@ -204,45 +192,67 @@ int main(){
         if (timer % (BOMBS_COOLDOWN / DELAY) == 0) {
             listeEntites pMonstre = listeMonstres2;
             int nombre_monstres = compteMonstres(listeMonstres2);
-            int monstre_choisi = rand() % nombre_monstres; // Choix aléatoire d'un monstre
+            if (nombre_monstres != 0){
+                int monstre_choisi = rand() % nombre_monstres; // Choix aléatoire d'un monstre
 
-            // Parcourir la liste des monstres jusqu'à atteindre le monstre choisi
-            int monstre_actuel = 0;
-            while (pMonstre != NULL && monstre_actuel < monstre_choisi) {
-                pMonstre = pMonstre->suivant;
-                monstre_actuel++;
-            }
+                // Parcourir la liste des monstres jusqu'à atteindre le monstre choisi
+                int monstre_actuel = 0;
+                while (pMonstre != NULL && monstre_actuel < monstre_choisi) {
+                    pMonstre = pMonstre->suivant;
+                    monstre_actuel++;
+                }
 
-            // Vérifier si un monstre a été trouvé
-            if (pMonstre != NULL) {
-                // Lâcher une bombe depuis ce monstre
-                lacherBombe(&listeBombes, pMonstre->ent.x, pMonstre->ent.y, numLutinBombe);
-                printf("Bombe lâchée par un monstre !\n");
+                // Vérifier si un monstre a été trouvé
+                if (pMonstre != NULL) {
+                    // Lâcher une bombe depuis ce monstre
+                    lacherBombe(&listeBombes, pMonstre->ent.x + largeurSprite(pMonstre->ent.lutin)/2, pMonstre->ent.y, numLutinBombe);
+                    //printf("Bombe lâchée par un monstre !\n");
+                }
             }
         }
 
-        deplacerBombes(&listeBombes, 1);
+        deplacerVertical(&listeBombes, 1, DELAY_BOMBES);
 
 
 
         // Déplacement des monstres
-        // A changer pour que tout les monstres changent de directions si un seul des monstres touche le bord, et pas seulement ligne par ligne de monstres
-        if (toucheBord(listeMonstres1)) {
-            dirMonstres1 *= -1;
-            moveListeEntites(listeMonstres1, 0, DECALAGE_MONSTRES, -1);
-            printf("touché\n");
+        // Détection du bord et changement de direction des monstres
+        if (toucheBord(listeMonstres1) || toucheBord(listeMonstres2)) { // Si un bord est touché par un monstre (peut importe lequel)
+            if (etatBord == 0) {
+                // Aucun bord n'a été touché précédemment
+
+
+                // A modifier par la suite en ajoutant toutes les listes de monstres
+                etatBord = toucheBord(listeMonstres1); // Récupère l'état du bord
+                if (etatBord == 0) {
+                    etatBord = toucheBord(listeMonstres2); // Vérifie le bord de la deuxième liste si nécessaire
+                }
+
+
+                //on change la direction des monstres
+                dirMonstres *= -1; // Inverse la direction des monstres
+
+                // On fait déscendre les monstres
+                moveListeEntites(listeMonstres1, 0, DECALAGE_MONSTRES_VERTICAL, -1);
+                moveListeEntites(listeMonstres2, 0, DECALAGE_MONSTRES_VERTICAL, -1);
+            }
+        } else {
+            // Aucun bord n'est touché
+            etatBord = 0;
         }
-         if (toucheBord(listeMonstres2)) {
-            dirMonstres2 *= -1;
-            moveListeEntites(listeMonstres2, 0, DECALAGE_MONSTRES, -1);
-        }
+
+        moveListeEntites(listeMonstres1, dirMonstres * DECALAGE_MONSTRES_HORIZONTAL, 0, DELAY_MONSTRES);
+        moveListeEntites(listeMonstres2, dirMonstres * DECALAGE_MONSTRES_HORIZONTAL, 0, DELAY_MONSTRES);
+
+
+
+        /////////////////////////////////////
+
+
+
+        // COLLISION
 
         /*
-        if (collisionEntiteEntite(joueur,joueur)){
-            printf("touché\n");
-        }
-        */
-
         if (collisionEntiteListe(joueur,listeBombes)){
             printf("collision vaisseau/bombes\n");
             joueur.lutin = numLutinJoueurDegat;
@@ -257,9 +267,122 @@ int main(){
         if (collisionListeListe(listeMissiles,listeMonstres1) || collisionListeListe(listeMissiles,listeMonstres2)){
             printf("collision missiles/monstres\n");
         }
+        */
 
-        moveListeEntites(listeMonstres1, dirMonstres1, 0, DELAY_MONSTRES);
-        moveListeEntites(listeMonstres2, dirMonstres2, 0, DELAY_MONSTRES);
+
+        //printf("vie = %d\n",vie);
+
+        //printf("PlayerTookDamage = %d\n",playerTookDamage);
+        if (playerTookDamage == 1) joueur.lutin = numLutinJoueurDegat;
+        else joueur.lutin = numLutinJoueur;
+
+        if (cooldownDegats > 0) {
+            cooldownDegats--;
+        }
+
+        if (cooldownDegats == 0) playerTookDamage = 0;
+
+        listeEntites pBombe = listeBombes;
+        listeEntites precBombe = NULL;
+
+        while (pBombe != NULL) {
+            if (collisionEntiteEntite(joueur, pBombe->ent)) {
+                if (cooldownDegats == 0) {
+                    // Si le joueur peut subir des dégâts (cooldownDegats == 0), décrémente le nombre de vies
+                    vie--;
+                    playerTookDamage = 1;
+                    // Réinitialise le cooldown des dégâts pour définir le temps d'attente entre deux dégâts
+                    cooldownDegats = COOLDOWN_DEGATS;
+                    // Supprime la bombe
+
+                    char vieString[2];
+                    vieString[0] = vie + '0';
+                    vieString[1] = '\0';
+
+                    vieAffichage = lutinTexte(vieString,COULEUR_BLANC);
+
+                    supprimeEntite(&listeBombes, &precBombe, &pBombe);
+
+
+                }
+                break;
+            }
+            // Avance dans la liste des bombes
+            precBombe = pBombe;
+            pBombe = pBombe->suivant;
+        }
+
+        // Vérifie si le joueur a perdu toutes ses vies
+        if (vie == 0) {
+            printf("Game Over!\n");
+            freeListeEntites(listeMissiles);
+            freeListeEntites(listeBombes);
+            freeListeEntites(listeBoucliers);
+            freeListeEntites(listeMonstres1);
+            freeListeEntites(listeMonstres2);
+            fermerSurface();
+            return 0;
+        }
+
+
+
+        // COLLISION MONSTRE / MISSILE
+        // Ne fonctionne pas, si on tire 2 missiles ou plus => core dumped
+
+        listeEntites pMissile = listeMissiles;
+        listeEntites precMissile = NULL;
+        listeEntites pMonstre = listeMonstres2;
+        listeEntites precMonstre = NULL;
+
+        int i = 0;
+        while (pMissile != NULL) {
+            //printf("i = %d\n",i);
+            while (pMonstre != NULL){
+                if (collisionEntiteEntite(pMonstre->ent, pMissile->ent)) {
+                    printf("Collision %d\n",i);
+                    printEntite(pMissile->ent);
+                    printEntite(pMonstre->ent);
+
+
+
+                    if (precMonstre == NULL) {
+                        deleteHead(&listeMonstres2);
+                    } else {
+                        precMonstre->suivant = pMonstre->suivant;
+                        free(pMonstre);
+                        pMonstre = precMonstre->suivant;
+                    }
+
+                    if (precMissile == NULL) {
+                        deleteHead(&listeMissiles);
+                    } else {
+                        precMissile->suivant = pMissile->suivant;
+                        free(pMissile);
+                        pMissile = precMissile->suivant;
+                    }
+
+
+
+
+
+                    break;
+                }
+                precMonstre = pMonstre;
+                pMonstre = pMonstre->suivant;
+            }
+            precMissile = pMissile;
+            pMissile = pMissile->suivant;
+            i++;
+
+
+            pMonstre = listeMonstres2;
+            precMonstre = NULL;
+
+        }
+
+
+
+        // AFFICHAGE //
 
         rectanglePlein(0,0,WIDTH,HEIGHT,1);
 
@@ -269,13 +392,14 @@ int main(){
         afficherListeEntite(listeMissiles);
         afficherEntite(joueur);
         afficherListeEntite(listeBombes);
+        afficherLutin(vieAffichage,50,50);
 
         majSurface();
 
         timer++;
         SDL_Delay(DELAY);
         //printf("%d ",timer);
-        //fflush(stdout); // Utiliser pour des printf à la suite sans \n
+        //fflush(stdout); // Utilisé pour des printf à la suite sans \n
 
     }
     return(1);
@@ -283,13 +407,9 @@ int main(){
 
 
 /* Choses à changer:
- * Modifier le cooldown des missiles
- * Le point d'apparition des bombes est décallés par rapport aux centres des monstres
- * Les monstres changent de directions de droite à gauche au mauvais moment
- * Changer le fonctionnement des vitesses pour ne pas avoir des mouvements sacadés
  * Fusionner la fonction pour deplacer les bombes et les missiles car elles font la même chose
  * Regrouper toute les listes d'entités dans une liste globale
- * Changer la façon dont on detecte un bord touché car le bord est detecté plusieur fois et si nombre pair, alors on change pas de sens + on se déplace de trop de pixel car on se déplace n fois
+ * si on tire plusieurs missiles on a des core dumped
  */
 
 // Probleme: quand on on déplace le joueur puis on tire en continu, on peut sortir de l'ecran

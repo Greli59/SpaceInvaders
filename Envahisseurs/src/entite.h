@@ -23,6 +23,7 @@ void printEntite(entite ent);
 listeEntites addHead(entite x, listeEntites l);
 void freeListeEntites(listeEntites l);
 void deleteHead(listeEntites *l);
+void supprimeEntite(listeEntites *pliste, listeEntites *prec, listeEntites *courant);
 void printListeEntites(listeEntites l);
 
 void afficherListeEntite(listeEntites l);
@@ -32,11 +33,10 @@ void moveEntite(entite * ent,int vx, int vy, int seuil);
 void moveListeEntites(listeEntites L, int vx, int vy, int seuil);
 
 void changerLutinListeEntites(listeEntites L, int numLutin);
-bool toucheBord(listeEntites L);
+int toucheBord(listeEntites L);
 
 void lacherBombe(listeEntites *listeBombes, int x, int y, int lutin);
-void deplacerBombes(listeEntites *listeBombes, int vitesse);
-void deplacerMissiles(listeEntites *listeMissiles, int vitesse);
+void deplacerVertical(listeEntites *liste, int vitesse, int delay);
 
 
 int largeurSprite(int lutin);

@@ -43,6 +43,16 @@ void deleteHead(listeEntites *pl){
     else printf("La liste est vide\n");
 }
 
+void supprimeEntite(listeEntites *pliste, listeEntites *prec, listeEntites *courant){
+    if ((*prec) == NULL) {
+        deleteHead(pliste);
+        *courant = *pliste;
+    } else {
+        (*prec)->suivant = (*courant)->suivant;
+        free(*courant);
+        *courant = (*prec)->suivant;
+    }
+}
 
 // Print tous les éléments d'une liste d'entités
 void printListeEntites(listeEntites l){
@@ -114,13 +124,14 @@ void changerLutinListeEntites(listeEntites L, int numLutin){
 
 
 // Vérifie si au moins une entité d'une liste touche le bord de l'écran
-bool toucheBord(listeEntites L) {
+
+//enlever le bool pour renvoyer 1 -1 0 pour droite gauche non
+int toucheBord(listeEntites L) {
     listeEntites p;
     p = L;
     while (p != NULL) {
-        if (p->ent.x == 0 || p->ent.x == WIDTH) {
-            return 1; // Si au moins un monstre touche le bord, retourne 1
-        }
+        if (p->ent.x + largeurSprite(p->ent.lutin) >= WIDTH) return 1; // Si au moins un monstre touche le bord droit, retourne 1
+        if (p->ent.x <= 0) return -1;
         p = p->suivant;
     }
     return 0; // Aucun monstre ne touche le bord
@@ -136,77 +147,22 @@ void lacherBombe(listeEntites *listeBombes, int x, int y, int lutin) {
 
 
 // Déplace les bombes selon une vitesse donnée et les supprime si elles sortent de l'écran
-void deplacerBombes(listeEntites *listeBombes, int vitesse) {
-    //printf("%d\n",WIDTH);
+void deplacerVertical(listeEntites *liste, int vitesse, int delay) {
     listeEntites prec = NULL;
-    listeEntites courant = *listeBombes;
+    listeEntites courant = *liste;
     while (courant != NULL) {
-        // Déplacer la bombe
-        moveEntite(&(courant->ent), 0, vitesse, DELAY_BOMBES);
-        // Vérifier si la bombe est sortie de l'écran
-        if (courant->ent.y > HEIGHT) {
-            // La bombe est sortie de l'écran, nous devons la supprimer
-            // Si la bombe à supprimer est en tête de liste
-            if (prec == NULL) {
-                // Mettre à jour le pointeur de tête de liste
-                *listeBombes = courant->suivant;
-                // Libérer la mémoire
-                free(courant);
-                // Avancer au prochain élément
-                courant = *listeBombes;
-            } else {
-                // La bombe à supprimer n'est pas en tête de liste
-                prec->suivant = courant->suivant;
-                // Libérer la mémoire
-                free(courant);
-                // Avancer au prochain élément
-                courant = prec->suivant;
-            }
+        // Déplacer la bombe/missile
+        moveEntite(&(courant->ent), 0, vitesse, delay);
+        // Vérifier si la bombe/missile est sortie de l'écran
+        if (courant->ent.y > HEIGHT || courant->ent.y < 0) {
+            supprimeEntite(liste,&prec,&courant);
         } else {
-            // La bombe est toujours à l'écran, passer à l'élément suivant
+            // La bombe/missile est toujours à l'écran, passer à l'élément suivant
             prec = courant;
             courant = courant->suivant;
         }
     }
 }
-
-
-//Copier Coller de la fonction d'avant, à modifier...
-// Déplace les missiles selon une vitesse donnée et les supprime s'ils sortent de l'écran
-void deplacerMissiles(listeEntites *listeMissiles, int vitesse) {
-    listeEntites prec = NULL;
-    listeEntites courant = *listeMissiles;
-    while (courant != NULL) {
-        // Déplacer le missile
-        moveEntite(&(courant->ent), 0, -(vitesse), DELAY_MISSILES);
-        // Vérifier si le missile est sorti de l'écran
-        if (courant->ent.y < 0) {
-            // Le missile est sorti de l'écran, nous devons le supprimer
-            // Si le missile à supprimer est en tête de liste
-            if (prec == NULL) {
-                // Mettre à jour le pointeur de tête de liste
-                *listeMissiles = courant->suivant;
-                // Libérer la mémoire
-                free(courant);
-                // Avancer au prochain élément
-                courant = *listeMissiles;
-            } else {
-                // Le missile à supprimer n'est pas en tête de liste
-                prec->suivant = courant->suivant;
-                // Libérer la mémoire
-                free(courant);
-                // Avancer au prochain élément
-                courant = prec->suivant;
-            }
-        } else {
-            // Le missile est toujours à l'écran, passer à l'élément suivant
-            prec = courant;
-            courant = courant->suivant;
-        }
-    }
-}
-
-
 
 // Retourne la largeur d'un sprite à partir de son numéro de lutin
 int largeurSprite(int lutin){
@@ -286,4 +242,6 @@ bool collisionListeListe(listeEntites listeEnt1, listeEntites listeEnt2){
     }
     return 0;
 }
+
+
 
