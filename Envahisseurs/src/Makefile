@@ -23,3 +23,9 @@ clean:
 	rm -f *.o
 	rm -f *.d
 	rm -f $(TARGET)
+
+
+.PHONY: clangtidy
+
+clangtidy:
+	clang-tidy --checks="readability-*" *.c *.h
