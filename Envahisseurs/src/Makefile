@@ -21,4 +21,5 @@ $(TARGET): $(OBJ)
 
 clean:
 	rm -f *.o
+	rm -f *.d
 	rm -f $(TARGET)
