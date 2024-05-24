@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#define TAILLE_TYPE_ENTITE 20
 
 typedef struct{
     int x; //coordonnée
@@ -15,8 +14,8 @@ struct cellule{
     struct cellule *suivant;
 };
 
-typedef struct cellule * listeEntites;
 
+typedef struct cellule * listeEntites;
 
 
 void printEntite(entite ent);
