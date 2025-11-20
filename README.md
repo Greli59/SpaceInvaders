@@ -1,5 +1,7 @@
 # SPACE INVADERS par Lilian Grévin
 
+![Space Invader Demo](./spaceinvader.gif)
+
 ## Contrôles
 - Utilisez **[Q]** pour aller à gauche et **[D]** pour aller à droite.
 - Appuyez sur **[Z]** pour tirer.
